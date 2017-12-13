@@ -1,13 +1,11 @@
-// -*- coding: utf-8 -*-
+#include "KeyExp.h"
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-typedef unsigned char uchar;
-  
-uchar SBox[256] = {
+/*----------------- VARIABLES GLOBALES -----------------------------*/
+
+uchar clefNulle[16] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+
+uchar SBoxKE[256] = {
   0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76, 
   0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0, 
   0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15, 
@@ -24,20 +22,44 @@ uchar SBox[256] = {
   0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E, 
   0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF, 
   0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16};
-// Table de substitution
+  
+uchar RconKE[10] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
 
-uchar Rcon[10] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 } ;
-// Constantes de ronde
 
-void affiche_la_clef(uchar *clef, int longueur)
-{
+/*------------------- UTILS ------------------------------------------*/
+
+void affiche_la_clef(uchar *clef, int longueur){
   int i;
-  for (i=0; i<longueur; i++) { 
-  	printf ("(%d)%02X ",i, clef[i] & 255); 
-  	if((i+1)%4==0) printf("\n");
-  }
+  for (i=0; i<longueur; i++)
+  	printf ("(%d)%02X ",i, clef[i] & 255);
+  	
   printf("\n");
 }
+
+int howManyRound(int keyL){
+	if (keyL== 16)
+		return 10;
+	
+	else if (keyL == 24)
+		return 12;
+       
+      else
+      	return 14;
+}
+
+int howManyWords(int keyL){
+	if (keyL == 16)
+		return 4;
+		
+  	else if (keyL == 24)
+  		return 6;
+  		
+      else
+      	return 8;
+}
+
+
+/*----------------METHODES D'EXPENSION DE CLEF------------------------*/
 
 void RotWord(uchar *W,int indice){
 	indice = indice + 3;
@@ -50,10 +72,10 @@ void RotWord(uchar *W,int indice){
 
 void SubWord(uchar *W,int indice){
 	indice = indice + 3;
-	W[indice-3] = SBox[W[indice-3]];
-	W[indice-2] = SBox[W[indice-2]];
-	W[indice-1] = SBox[W[indice-1]];
-	W[indice] = SBox[W[indice]];
+	W[indice-3] = SBoxKE[W[indice-3]];
+	W[indice-2] = SBoxKE[W[indice-2]];
+	W[indice-1] = SBoxKE[W[indice-1]];
+	W[indice] = SBoxKE[W[indice]];
 }
 
 void calcule_la_clef_etendue(uchar *K, int long_K, uchar *W, int long_W, int Nr, int Nk)
@@ -73,7 +95,7 @@ void calcule_la_clef_etendue(uchar *K, int long_K, uchar *W, int long_W, int Nr,
   	if((j/4)%Nk == 0){
   		RotWord(W,j);
   		SubWord(W,j);
-  		W[j] = W[j]^Rcon[((j/4)/Nk)-1];  		
+  		W[j] = W[j]^RconKE[((j/4)/Nk)-1];  		
   	}
   	else if(Nk > 6 && (j/4)%Nk == 4){
   		SubWord(W,j);
@@ -87,26 +109,21 @@ void calcule_la_clef_etendue(uchar *K, int long_K, uchar *W, int long_W, int Nr,
   
 }
 
-
-int main (int argc, char * argv[])
+/***** Methode principale *****/
+uchar* KeyExpansion (uchar *Key, int keyLength)
 {
-  uchar K[32]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-  /*uchar K[64]={0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
-  		   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-  		   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
-  		   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};*/ // La longueur max. de la clef courte est 32 octets
-  int long_de_la_clef = 16 ;
-  uchar W[240];   // La longueur max. de la clef étendue est (14+1)*16=240 octets
-  int Nr, Nk;
-  if (long_de_la_clef == 16){ Nr = 10; Nk = 4; }
-  else if (long_de_la_clef == 24){ Nr = 12; Nk = 6; }
-       else { Nr = 14; Nk = 8; }
+  int Nr = howManyRound(keyLength);
+  int Nk = howManyWords(keyLength);
+  
   int long_de_la_clef_etendue = 4*(4*(Nr+1));
+  
+  uchar* W = malloc(long_de_la_clef_etendue*sizeof(uchar));
 
-  calcule_la_clef_etendue(K, long_de_la_clef, W, long_de_la_clef_etendue, Nr, Nk);  
+  calcule_la_clef_etendue(clefNulle, keyLength, W, long_de_la_clef_etendue, Nr, Nk);  
 
   affiche_la_clef(W, long_de_la_clef_etendue);
-  exit(EXIT_SUCCESS);
+  
+  return W;
 }
 
 /*
