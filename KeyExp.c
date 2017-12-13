@@ -120,8 +120,6 @@ uchar* KeyExpansion (uchar *Key, int keyLength)
   uchar* W = malloc(long_de_la_clef_etendue*sizeof(uchar));
 
   calcule_la_clef_etendue(clefNulle, keyLength, W, long_de_la_clef_etendue, Nr, Nk);  
-
-  affiche_la_clef(W, long_de_la_clef_etendue);
   
   return W;
 }

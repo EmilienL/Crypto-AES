@@ -155,6 +155,7 @@ void Chiffrage (uchar* bloc, uchar* clef, int keyLength) {
   
   chiffrer(bloc,W,Nr);
   
+  printf("Résultat: ");
   affiche_bloc_matriciel(bloc);
   
 }
@@ -247,6 +248,7 @@ void Dechiffrage (uchar* bloc, uchar* clef, int keyLength) {
   
   dechiffrer(bloc,W,Nr);
   
+  printf("Résultat: ");
   affiche_bloc_matriciel(bloc);
   
 }

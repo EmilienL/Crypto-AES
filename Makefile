@@ -1,10 +1,10 @@
 CC = gcc
 
-CFLAGS = -Wall -ggdb -std=c99
+CFLAGS = -Wall -ggdb -std=c99 -lssl -lcrypto
 
-DEPS = KeyExp.h aesC.h
+DEPS = KeyExp.h aesC.h CBCpkcs.h md5sum.h
 
-OBJ = KeyExp.o AES.o aesC.o
+OBJ = KeyExp.o AES.o aesC.o CBCpkcs.o md5sum.o
 
 %.o : %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
