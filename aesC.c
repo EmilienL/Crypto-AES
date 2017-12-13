@@ -56,6 +56,7 @@ void SubBytes(uchar* bloc){
 		bloc[i] = SBoxKE[bloc[i]];
 }
 
+/* Codage "brutal", mais très efficace pour debugguer */
 void ShiftRows(uchar* bloc){
 	
 	uchar tmp = bloc[1];
@@ -82,6 +83,8 @@ void ShiftRows(uchar* bloc){
 	
 }
 
+
+/* Codage "brutal", mais très efficace pour debugguer */
 void MixColumns(uchar* bloc){
 	
 	uchar Tampbloc[16];
@@ -114,28 +117,15 @@ void AddRoundKey(uchar* bloc, uchar* Key, int r){
 	
 	int index = r*4*4;
 	
-	bloc[0] = bloc[0]^Key[index];
-	bloc[1] = bloc[1]^Key[index+1];
-	bloc[2] = bloc[2]^Key[index+2];
-	bloc[3] = bloc[3]^Key[index+3];
-	bloc[4] = bloc[4]^Key[index+4];
-	bloc[5] = bloc[5]^Key[index+5];
-	bloc[6] = bloc[6]^Key[index+6];
-	bloc[7] = bloc[7]^Key[index+7];
-	bloc[8] = bloc[8]^Key[index+8];
-	bloc[9] = bloc[9]^Key[index+9];
-	bloc[10] = bloc[10]^Key[index+10];
-	bloc[11] = bloc[11]^Key[index+11];
-	bloc[12] = bloc[12]^Key[index+12];
-	bloc[13] = bloc[13]^Key[index+13];
-	bloc[14] = bloc[14]^Key[index+14];
-	bloc[15] = bloc[15]^Key[index+15];
+	for(int i=0; i<16 ; i++)
+		bloc[i] = bloc[i] ^ Key[index+i];
 	
 }
 
 void chiffrer(uchar* bloc, uchar* Key, int Nr){
   int i;
   AddRoundKey(bloc,Key,0);
+  
   for (i = 1; i < Nr; i++) {
     SubBytes(bloc);
     ShiftRows(bloc);
@@ -145,6 +135,7 @@ void chiffrer(uchar* bloc, uchar* Key, int Nr){
   SubBytes(bloc);
   ShiftRows(bloc);
   AddRoundKey(bloc,Key,Nr);
+
 }
 
 void Chiffrage (uchar* bloc, uchar* clef, int keyLength) {
@@ -155,14 +146,13 @@ void Chiffrage (uchar* bloc, uchar* clef, int keyLength) {
   
   chiffrer(bloc,W,Nr);
   
-  printf("Résultat: ");
-  affiche_bloc_matriciel(bloc);
-  
 }
 
 
 /* ------------METHODES DECHIFFRAGES -----------------------------*/
 
+
+/* Codage "brutal", mais très efficace pour debugguer */
 void Inv_ShiftRows(uchar* bloc){
 	uchar tmp = bloc[13];
 	
@@ -187,6 +177,8 @@ void Inv_ShiftRows(uchar* bloc){
 	bloc[15] = tmp;
 }
 
+
+/* Codage "brutal", mais très efficace pour debugguer */
 void Inv_MixColumns(uchar* bloc){
 	
 	uchar Tampbloc[16];
@@ -247,8 +239,5 @@ void Dechiffrage (uchar* bloc, uchar* clef, int keyLength) {
   uchar* W = KeyExpansion(clef,keyLength);
   
   dechiffrer(bloc,W,Nr);
-  
-  printf("Résultat: ");
-  affiche_bloc_matriciel(bloc);
   
 }

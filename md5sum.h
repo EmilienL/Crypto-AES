@@ -10,7 +10,7 @@ typedef unsigned char uchar; // Les octets sont non-signés.
 
 extern uchar clef[16];
 
-uchar* StringToMd5(char* mdp);
+void StringToMd5(char* mdp);
 
 
 #endif

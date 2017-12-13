@@ -62,6 +62,7 @@ int howManyWords(int keyL){
 /*----------------METHODES D'EXPENSION DE CLEF------------------------*/
 
 void RotWord(uchar *W,int indice){
+	/* Partons du bas de la colonne (inutile en théorie mais le resultat reste le même) */
 	indice = indice + 3;
 	uchar tmp = W[indice-3];
 	W[indice-3] = W[indice-2];
@@ -71,6 +72,7 @@ void RotWord(uchar *W,int indice){
 }
 
 void SubWord(uchar *W,int indice){
+	/* Partons du bas de la colonne (inutile en théorie mais le resultat reste le même) */
 	indice = indice + 3;
 	W[indice-3] = SBoxKE[W[indice-3]];
 	W[indice-2] = SBoxKE[W[indice-2]];
@@ -78,28 +80,36 @@ void SubWord(uchar *W,int indice){
 	W[indice] = SBoxKE[W[indice]];
 }
 
+/* Calcul de la clef longue */
+/* ATTENTION !! l'algorithme vue en TP utilise des indices en fonction du nombre de colonnes */
+/* Nous allons travailler ici avec des inidices propre a chaque cases */
 void calcule_la_clef_etendue(uchar *K, int long_K, uchar *W, int long_W, int Nr, int Nk)
 {
   int i,j;
+  
+  /* La clef courte est recopié dans la clef longue */
   for(i=0; i<long_K; i++)
     W[i] = K[i];
   
+  
   for(j=long_K;j<long_W;j=j+4){
   	
+  	/* La colonne précédente est recopié */
   	W[j] = W[j-4];
   	W[j+1] = W[j-3];
   	W[j+2] = W[j-2];
   	W[j+3] = W[j-1];
   	
-  	
+  	/* Si la colonne est un nouveau mot */
   	if((j/4)%Nk == 0){
   		RotWord(W,j);
   		SubWord(W,j);
   		W[j] = W[j]^RconKE[((j/4)/Nk)-1];  		
   	}
-  	else if(Nk > 6 && (j/4)%Nk == 4){
+  	else if(Nk > 6 && (j/4)%Nk == 4)
   		SubWord(W,j);
-  	}
+
+  	
   	W[j] = W[((j/4)-Nk)*4] ^ W[j];
   	W[j+1] = W[((j/4)-Nk)*4+1] ^ W[j+1];
   	W[j+2] = W[((j/4)-Nk)*4+2] ^ W[j+2];
@@ -123,22 +133,3 @@ uchar* KeyExpansion (uchar *Key, int keyLength)
   
   return W;
 }
-
-/*
-$ make
-gcc diversification.c -o diversification 
-$ ./diversification 2b7e151628aed2a6abf7158809cf4f3c
-La clef est : 2B 7E 15 16 28 AE D2 A6 AB F7 15 88 09 CF 4F 3C 
-Les clefs de rondes sont : 
-RoundKeys[00] =  2B  7E  15  16  28  AE  D2  A6  AB  F7  15  88  09  CF  4F  3C 
-RoundKeys[01] =  A0  FA  FE  17  88  54  2C  B1  23  A3  39  39  2A  6C  76  05 
-RoundKeys[02] =  F2  C2  95  F2  7A  96  B9  43  59  35  80  7A  73  59  F6  7F 
-RoundKeys[03] =  3D  80  47  7D  47  16  FE  3E  1E  23  7E  44  6D  7A  88  3B 
-RoundKeys[04] =  EF  44  A5  41  A8  52  5B  7F  B6  71  25  3B  DB  0B  AD  00 
-RoundKeys[05] =  D4  D1  C6  F8  7C  83  9D  87  CA  F2  B8  BC  11  F9  15  BC 
-RoundKeys[06] =  6D  88  A3  7A  11  0B  3E  FD  DB  F9  86  41  CA  00  93  FD 
-RoundKeys[07] =  4E  54  F7  0E  5F  5F  C9  F3  84  A6  4F  B2  4E  A6  DC  4F 
-RoundKeys[08] =  EA  D2  73  21  B5  8D  BA  D2  31  2B  F5  60  7F  8D  29  2F 
-RoundKeys[09] =  AC  77  66  F3  19  FA  DC  21  28  D1  29  41  57  5C  00  6E 
-RoundKeys[10] =  D0  14  F9  A8  C9  EE  25  89  E1  3F  0C  C8  B6  63  0C  A6 
-*/

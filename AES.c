@@ -5,10 +5,10 @@
 #include <math.h>
 #include <sys/stat.h>
 
-#include "KeyExp.h"
-#include "aesC.h"
-#include "CBCpkcs.h"
-#include "md5sum.h"
+#include "KeyExp.h" //-> TP B.3
+#include "aesC.h"  //-> TP C.1 et C.2
+#include "CBCpkcs.h" //-> TP F.1 et F.2
+#include "md5sum.h" //-> md5sum du mot de passe
 
 
 int main(int argc, char* argv[]){
@@ -30,16 +30,11 @@ int main(int argc, char* argv[]){
 		char* option = argv[1];
 		char fileName[50];
 		strcpy(fileName,argv[2]);
-		//char* fileName = malloc(strlen(argv[2])*sizeof(char));
-		//fileName = argv[2];
 		
-		printf("2 arguments: %s de %s, clef nulle\n",option,fileName);
 		if(option[1] == 'e'){
-			Padding_file(fileName);
-			
-  //printf(" padded file : %s \n",newFileName);
-  
-			CBC( clefNulle);}
+			Padding_file(fileName);  
+			CBC( clefNulle);
+		}
 		if(option[1] == 'd')
 			Inv_CBC(fileName, clefNulle);
 		
@@ -50,14 +45,12 @@ int main(int argc, char* argv[]){
 		char* option = argv[1];
 		char* fileName = argv[2];
 		char* mdp = argv[3];
-		printf("3 arguments: %s de %s, clef %s\n",option,fileName,argv[3]);
+		
 		StringToMd5(mdp);
 		if(option[1] == 'e'){
 			Padding_file(fileName);
-			
-  //printf(" padded file : %s \n",newFileName);
-  
-			CBC( clef);}
+			CBC( clef);
+		}
 		if(option[1] == 'd')
 			Inv_CBC(fileName, clef);
 	}
