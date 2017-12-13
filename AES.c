@@ -10,19 +10,36 @@
 #include "CBCpkcs.h" //-> TP F.1 et F.2
 #include "md5sum.h" //-> md5sum du mot de passe
 
+/* Vous pouvez tester l'algorithme sur butokuden.jpg */
+/* Ou sur test.txt qui est plus petit, plus pratique */
+/* Pour analyser les contenus au fur et a mesure.    */
+
+/* Utiliser "./scriptDelete" ("sudo chmod +x scriptDelete.sh" avant) */
+/* pour supprimer les fichiers créée dont vous n'avez plus besoin entre deux instances */
+
 
 int main(int argc, char* argv[]){
 	/* Aucun argument: chiffrement du bloc nul, clef nulle */
 	if(argc==1){
 		Chiffrage(blocNul,clefNulle,16);
+		printf("\n");
+		printf("Résultat: ");
+		affiche_bloc_matriciel(blocNul);
+		printf("\n");
 	}
 	/* 1 argument: -e || -d (de)chiffrement du bloc nul, clef nulle */
 	else if(argc==2){
 		char* option = argv[1];
+		
 		if(option[1] == 'e')
 			Chiffrage(blocNul,clefNulle,16);
 		if(option[1] == 'd')
 			Dechiffrage(blocNul,clefNulle,16);
+		
+		printf("\n");
+		printf("Résultat: ");
+		affiche_bloc_matriciel(blocNul);
+		printf("\n");
 	}
 	/* 2 arguments: -e || -d (de)chiffrement */
 	/* d'un fichier(arg 2), clef nulle */
